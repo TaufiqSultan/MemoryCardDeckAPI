@@ -1,4 +1,4 @@
-package sr.unasat.game;
+package sr.unasat.ui;
 
 public class Observer {
 }

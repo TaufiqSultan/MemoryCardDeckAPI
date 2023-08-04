@@ -1,4 +1,4 @@
-package sr.unasat;
+package sr.unasat.ui;
 
 /**
  * Hello world!
