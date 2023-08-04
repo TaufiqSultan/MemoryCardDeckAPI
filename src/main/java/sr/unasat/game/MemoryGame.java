@@ -1,14 +1,20 @@
 package sr.unasat.game;
 
-import jdk.internal.misc.JavaNetUriAccess;
-import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import sr.unasat.api.Card;
 import sr.unasat.api.Deck;
 import sr.unasat.api.DeckOfCardsAPI;
 import sr.unasat.api.DrawnCards;
+import sr.unasat.ui.Observer;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.*;
+import retrofit2.*;
+import sr.unasat.util.Timer;
+
 
 public class MemoryGame {
     private static MemoryGame instance;
@@ -18,11 +24,13 @@ public class MemoryGame {
     private Card firstFlippedCard;
     private Card secondFlippedCard;
     private Timer gameTimer;
+    private List<Observer> observers;
 
     private MemoryGame() {
         cardsInPlay = new ArrayList<Card>();
         flippedCards = new HashMap<String, Card>();
         gameEnded = false;
+        observers = new ArrayList<Observer>();
     }
 
     public static MemoryGame getInstance() {
@@ -34,10 +42,8 @@ public class MemoryGame {
 
     public void startGame() {
         // Fetch deck from the API, shuffle cards, and draw initial cards
-        // Implement the Retrofit setup here
         String DECK_API_BASE_URL = "https://deckofcardsapi.com/api/";
 
-        JavaNetUriAccess GsonConverterFactory = null;
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(DECK_API_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -152,7 +158,7 @@ public class MemoryGame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 seconds++;
-                // Notify UI with the elapsed time (you can implement this in MemoryGameUI)
+                // Notify UI with the elapsed time
                 notifyElapsedTime(seconds);
             }
         };
@@ -174,36 +180,40 @@ public class MemoryGame {
 
     // Implement the following methods to register and notify the UI
     public void registerObserver(Observer observer) {
-        // Add the observer to a list of observers
+        observers.add(observer);
     }
 
     private void notifyCardFlipped() {
-        // Notify all registered observers that a card has been flipped
+        for (Observer observer : observers) {
+            observer.onCardFlipped((Card) flippedCards);
+        }
     }
 
     private void notifyElapsedTime(int elapsedSeconds) {
-        // Notify all registered observers with the elapsed time
+        for (Observer observer : observers) {
+            observer.onElapsedTimeUpdate(elapsedSeconds);
+        }
     }
 
     private void notifyGameEnded() {
-        // Notify all registered observers that the game has ended
-    }
-
-    // Add the following method to handle when the game ends
-    private void handleGameEnd() {
-        stopTimer();
-        notifyGameEnded();
+        for (Observer observer : observers) {
+            observer.onGameEnded();
+        }
     }
 
     public boolean isGameEnded() {
         return gameEnded;
     }
 
+    public boolean isCardFlipped(Card card) {
+        return flippedCards.containsKey(card.getValue());
+    }
+
+    public List<Card> getCardsInPlay() {
+        return cardsInPlay;
+    }
+
     public boolean isMatchMade() {
         return flippedCards.size() == 2 && firstFlippedCard.getValue().equals(secondFlippedCard.getValue());
     }
-
-    public boolean isCardFlipped(Card card) {
-    }
 }
-
