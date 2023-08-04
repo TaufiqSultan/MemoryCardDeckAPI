@@ -1,4 +1,8 @@
 package sr.unasat.ui;
 
-public class Observer {
+import sr.unasat.api.Card;
+
+public interface Observer {
+    void onCardFlipped(Card card);
+    void onGameEnded();
 }

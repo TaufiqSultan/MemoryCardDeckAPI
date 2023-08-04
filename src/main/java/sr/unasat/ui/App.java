@@ -1,13 +1,10 @@
 package sr.unasat.ui;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+import sr.unasat.game.MemoryGame;
+
+public class Main {
+    public static void main(String[] args) {
+        MemoryGameUI.getInstance().initializeUI(); // Start the game UI
+        MemoryGame.getInstance().startGame(); // Start the game logic
     }
 }
